@@ -8,6 +8,7 @@ import { ChevronDown } from "lucide-react"
 
 export default function Rooms() {
   const [showReservationModal, setShowReservationModal] = useState(false)
+  const [selectedRoomCategory, setSelectedRoomCategory] = useState("")
   const [expandedRooms, setExpandedRooms] = useState<number[]>([])
 
   const toggleRoomExpansion = (index: number) => {
@@ -174,7 +175,13 @@ export default function Rooms() {
                   </div>
                 </motion.div>
 
-                <button onClick={() => setShowReservationModal(true)} className="w-full btn-primary">
+                <button
+                  onClick={() => {
+                    setSelectedRoomCategory(room.name)
+                    setShowReservationModal(true)
+                  }}
+                  className="w-full btn-primary"
+                >
                   Book Now
                 </button>
               </div>
@@ -182,7 +189,11 @@ export default function Rooms() {
           ))}
         </div>
       </div>
-      <ReservationModal isOpen={showReservationModal} onClose={() => setShowReservationModal(false)} />
+      <ReservationModal
+        isOpen={showReservationModal}
+        onClose={() => setShowReservationModal(false)}
+        defaultRoomCategory={selectedRoomCategory}
+      />
     </section>
   )
 }

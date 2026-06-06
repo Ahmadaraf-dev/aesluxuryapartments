@@ -23,12 +23,34 @@ interface EventBookingFormData {
 }
 
 
-// Helper function to handle API responses
+// Helper function to convert YYYY-MM-DD to DD/MM/YYYY without timezone offset bugs
+const formatDateString = (dateStr: string): string => {
+  if (!dateStr) return "";
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) return dateStr;
+  const [year, month, day] = parts;
+  return `${day}/${month}/${year}`;
+};
+
+// Helper function to handle API responses robustly
 const handleResponse = async (response: Response) => {
+  const contentType = response.headers.get("content-type");
+  const isJson = contentType && contentType.includes("application/json");
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Something went wrong");
+    if (isJson) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Something went wrong");
+    } else {
+      const errorText = await response.text();
+      throw new Error(`Server returned an error (${response.status}): ${errorText.substring(0, 100)}`);
+    }
   }
+
+  if (!isJson) {
+    throw new Error("Invalid response from server (Expected JSON, received HTML/Text).");
+  }
+
   return response.json();
 };
 
@@ -40,12 +62,12 @@ export const submitReservation = async (formData: ReservationFormData) => {
       name: formData.name,
       phone: formData.phone,
       location: formData.location,
-      check_in_date: new Date(formData.checkIn).toLocaleDateString("en-GB"), // Convert to dd/mm/yyyy
-      check_out_date: new Date(formData.checkOut).toLocaleDateString("en-GB"), // Convert to dd/mm/yyyy
+      check_in_date: formatDateString(formData.checkIn),
+      check_out_date: formatDateString(formData.checkOut),
       departure_time: formData.departureTime || null,
       adults: parseInt(formData.adults, 10),
       children: parseInt(formData.children, 10),
-      room_categories:formData.room_categories,
+      room_categories: formData.room_categories,
     };
 
     const response = await fetch(`${API_BASE_URL}/make-reservation`, {
@@ -71,7 +93,7 @@ export const submitEventBooking = async (formData: EventBookingFormData) => {
       email: formData.email || null,
       phone: formData.phone,
       event_type: formData.eventType,
-      event_date: new Date(formData.eventDate).toLocaleDateString("en-GB"), // Convert to dd/mm/yyyy
+      event_date: formatDateString(formData.eventDate),
       additional_details: formData.eventDetails || null,
     };
 

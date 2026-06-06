@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Calendar, Phone, MapPin, Users, Clock, BabyIcon as Child } from "lucide-react"
 
@@ -11,9 +11,10 @@ import jsPDF from "jspdf"
 interface ReservationModalProps {
   isOpen: boolean
   onClose: () => void
+  defaultRoomCategory?: string
 }
 
-export default function ReservationModal({ isOpen, onClose }: ReservationModalProps) {
+export default function ReservationModal({ isOpen, onClose, defaultRoomCategory = "" }: ReservationModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -24,8 +25,16 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
     adults: "1",
     children: "0",
     room_categories: "",
-    
   })
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData((prev) => ({
+        ...prev,
+        room_categories: defaultRoomCategory,
+      }))
+    }
+  }, [isOpen, defaultRoomCategory])
   const [showSuccess, setShowSuccess] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
