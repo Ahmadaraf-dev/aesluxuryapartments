@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     if (process.env.RESEND_API_KEY) {
       try {
         const resend = new Resend(process.env.RESEND_API_KEY)
-        const toEmail = process.env.RESEND_TO_EMAIL || "ahmadaraf14@gmail.com"
+        const toEmail = process.env.RESEND_TO_EMAIL || "onlinereservations@aesluxury.com"
         const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev"
 
         await resend.emails.send({
